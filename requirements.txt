@@ -1,0 +1,14 @@
+# Shared dependencies across all maromba_ai projects
+
+# Environment configuration
+python-dotenv==1.0.1
+
+# HTTP clients and utilities
+requests==2.31.0
+
+# Data processing utilities
+python-dateutil==2.8.2
+
+# Development and testing
+pytest==7.4.3
+black==23.12.1
