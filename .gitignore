@@ -12,6 +12,7 @@ google_credentials.json
 service-account*.json
 
 # API keys and tokens
+!api_keys.env.example
 api_keys.*
 *api_key*
 *token*
