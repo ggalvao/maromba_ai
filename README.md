@@ -1,6 +1,6 @@
 # Maromba AI
 
-A comprehensive monorepo for AI-powered fitness and sports science applications, featuring automated research data collection, workout tracking, and intelligent chatbot interfaces.
+A comprehensive monorepo for AI-powered fitness and sports science applications, featuring automated research data collection, workout tracking, and intelligent chatbot interfaces. Maromba is a Brazilian Portuguese term that describes a lifestyle centered around dedicated gym training and the pursuit of a fit, muscular physique. While it traditionally referred to bodybuilders focused on extreme muscle gain, it now also includes people who are committed to the gym for general health, well-being, and a balanced, aesthetic look.
 
 ## 📋 Overview
 
