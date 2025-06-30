@@ -17,7 +17,7 @@ fi
 wait_for_db() {
     echo "⏳ Waiting for database to be ready..."
     for i in {1..30}; do
-        if docker-compose exec -T postgres pg_isready -U admin -d sports_science > /dev/null 2>&1; then
+        if docker compose exec -T postgres pg_isready -U admin -d sports_science > /dev/null 2>&1; then
             echo "✅ Database is ready!"
             return 0
         fi
@@ -74,24 +74,24 @@ install_dependencies() {
         exit 1
     fi
     
-    pip install -r requirements.txt
+    ../venv/bin/pip install -r requirements.txt
     echo "✅ Dependencies installed"
 }
 
 # Function to start database
 start_database() {
     echo "🐘 Starting PostgreSQL database..."
-    docker-compose up -d postgres
+    docker compose up -d postgres
     wait_for_db
 }
 
 # Function to setup database
 setup_database() {
     echo "🏗️  Setting up database tables..."
-    python src/main.py --setup-db
+    PYTHONPATH=. ../venv/bin/python -m src.main --setup-db
     
     echo "🧪 Testing database connection..."
-    python src/main.py --test-connection
+    PYTHONPATH=. ../venv/bin/python -m src.main --test-connection
     
     echo "✅ Database setup complete"
 }
@@ -99,7 +99,7 @@ setup_database() {
 # Function to run tests
 run_tests() {
     echo "🧪 Running pipeline tests..."
-    python test_pipeline.py
+    PYTHONPATH=. ../venv/bin/python test_pipeline.py
 }
 
 # Function to start collection
@@ -113,7 +113,7 @@ start_collection() {
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo "📚 Starting collection pipeline..."
-        python src/main.py | tee data/logs/collection_$(date +%Y%m%d_%H%M%S).log
+        PYTHONPATH=. ../venv/bin/python -m src.main | tee data/logs/collection_$(date +%Y%m%d_%H%M%S).log
     else
         echo "Collection cancelled. Run 'python src/main.py' when ready."
     fi
@@ -142,10 +142,10 @@ check_status() {
     
     # Docker containers
     echo "Docker Containers:"
-    docker-compose ps 2>/dev/null || echo "  No containers running"
+    docker compose ps 2>/dev/null || echo "  No containers running"
     
     # Database stats
-    if docker-compose exec -T postgres pg_isready -U admin -d sports_science > /dev/null 2>&1; then
+    if docker compose exec -T postgres pg_isready -U admin -d sports_science > /dev/null 2>&1; then
         echo ""
         echo "Database Status: ✅ Connected"
         
@@ -220,7 +220,7 @@ main() {
                 ;;
             8)
                 echo "🛑 Stopping all services..."
-                docker-compose down
+                docker compose down
                 echo "✅ All services stopped"
                 ;;
             9)
