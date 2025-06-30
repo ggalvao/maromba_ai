@@ -1,0 +1,6 @@
+# Include shared requirements
+-r ../requirements.txt
+
+# Chatbot UI specific dependencies
+pydantic-settings==2.1.0 
+streamlit=1.46.1
