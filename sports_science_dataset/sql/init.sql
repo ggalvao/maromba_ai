@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS papers (
     citation_count INTEGER DEFAULT 0,
     pdf_path VARCHAR(500),
     pdf_url TEXT,
-    metadata JSONB,
-    embedding VECTOR(768), -- Using sentence-transformers all-MiniLM-L6-v2
+    paper_metadata JSONB,
+    embedding VECTOR(384), -- Using sentence-transformers all-MiniLM-L6-v2
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );

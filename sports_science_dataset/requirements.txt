@@ -5,6 +5,7 @@
 psycopg2-binary==2.9.9
 sqlalchemy==2.0.23
 alembic==1.13.1
+pgvector==0.2.4
 
 # Scientific APIs and data collection
 biopython==1.83
@@ -17,11 +18,12 @@ pdfplumber==0.10.3
 python-magic==0.4.27
 
 # NLP and embeddings
-sentence-transformers==2.2.2
+sentence-transformers==2.7.0
 transformers==4.36.2
 torch==2.1.2
 numpy==1.24.4
 scikit-learn==1.3.2
+huggingface-hub<0.20.0
 
 # OpenAI API for AI filtering
 openai==1.6.1
@@ -54,3 +56,7 @@ mypy==1.8.0
 validators==0.22.0
 fuzzywuzzy==0.18.0
 python-levenshtein==0.23.0
+
+# Web scraping for additional collectors
+beautifulsoup4==4.12.2
+scholarly==1.7.11

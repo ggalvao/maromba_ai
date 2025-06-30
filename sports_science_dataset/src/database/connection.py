@@ -1,7 +1,7 @@
 import os
 from contextlib import contextmanager
 from typing import Generator
-from sqlalchemy import create_engine, Engine
+from sqlalchemy import create_engine, Engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import QueuePool
 from loguru import logger
@@ -48,7 +48,7 @@ class DatabaseManager:
     def test_connection(self) -> bool:
         try:
             with self.get_session() as session:
-                session.execute("SELECT 1")
+                session.execute(text("SELECT 1"))
                 logger.info("Database connection test successful")
                 return True
         except Exception as e:

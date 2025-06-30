@@ -33,8 +33,8 @@ class Paper(Base):
     citation_count = Column(Integer, default=0)
     pdf_path = Column(String(500))
     pdf_url = Column(Text)
-    metadata = Column(JSONB)
-    embedding = Column(Vector(768))  # Using sentence-transformers all-MiniLM-L6-v2
+    paper_metadata = Column(JSONB)
+    embedding = Column(Vector(384))  # Using sentence-transformers all-MiniLM-L6-v2
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
