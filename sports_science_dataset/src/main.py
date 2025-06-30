@@ -16,15 +16,15 @@ from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 
-# Add src to path for imports
-sys.path.append(str(Path(__file__).parent))
+from .collectors import PubMedCollector, SemanticScholarCollector, ArxivCollector
+from .processors import PDFProcessor, AIFilter, Deduplicator
+from .database import DatabaseManager, get_session, Paper, SearchHistory, CollectionStats, EmbeddingManager
 
-from collectors import PubMedCollector, SemanticScholarCollector, ArxivCollector
-from processors import PDFProcessor, AIFilter, Deduplicator
-from database import DatabaseManager, get_session, Paper, SearchHistory, CollectionStats, EmbeddingManager
 
 # Load environment variables
 load_dotenv()
+load_dotenv('config/api_keys.env')
+load_dotenv('config/database.env')
 
 # Configure logging
 logger.remove()
@@ -367,7 +367,7 @@ class SportsScienteDatasetBuilder:
                         citation_count=paper.citation_count,
                         pdf_path=paper.metadata.get('pdf_processing', {}).get('file_path') if paper.metadata else None,
                         pdf_url=paper.pdf_url,
-                        metadata=paper.metadata,
+                        paper_metadata=paper.metadata,
                         embedding=paper.metadata.get('embedding') if paper.metadata else None
                     )
                     
@@ -451,7 +451,7 @@ class SportsScienteDatasetBuilder:
             # Save report to file
             report_path = self.logs_dir / "collection_report.txt"
             with open(report_path, 'w') as f:
-                console.print(table, file=f)
+                f.write(str(table))
             
             logger.info(f"Collection report saved to: {report_path}")
 
