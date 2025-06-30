@@ -1,311 +1,159 @@
 # Sports Science Literature Dataset Builder
 
-An automated pipeline for collecting, processing, and storing sports science research papers from multiple academic sources. Built for AI Engineering capstone project focusing on Adaptive Training AI with Physiological Modeling.
+An automated pipeline for collecting, processing, and storing sports science research papers from multiple academic sources. This project is designed to build a high-quality dataset for AI applications in sports science, such as an "Adaptive Training AI with Physiological Modeling."
 
 ## Features
 
-- **Multi-source Collection**: PubMed, Semantic Scholar, and arXiv APIs
-- **AI-Powered Filtering**: OpenAI-based relevance and quality assessment
-- **Smart Deduplication**: DOI, title, and author-based duplicate detection
-- **PDF Processing**: Full-text extraction with section identification using PyMuPDF
-- **Vector Embeddings**: Sentence-transformers for semantic search capabilities
-- **PostgreSQL + pgvector**: Production-ready database with vector search
-- **Comprehensive Logging**: Rich console output and detailed logging
+- **Multi-Source Collection**: Gathers data from PubMed, Semantic Scholar, and arXiv.
+- **AI-Powered Filtering**: Uses OpenAI's GPT models to assess the relevance and quality of research papers.
+- **Smart Deduplication**: Employs a multi-level strategy (DOI, title, author) to eliminate duplicate entries.
+- **Advanced PDF Processing**: Extracts full text and identifies document sections using PyMuPDF.
+- **Vector Embeddings**: Generates sentence-transformer embeddings for semantic search and analysis.
+- **Production-Ready Database**: Utilizes PostgreSQL with the `pgvector` extension for efficient vector similarity search.
+- **Interactive Setup**: Comes with a `run.sh` script to simplify setup and execution.
 
-## Quick Start
+## Getting Started
 
-### 1. Environment Setup
+This project can be set up quickly using the interactive script or by following the manual steps.
 
-```bash
-# Clone and navigate to the project
-cd sports_science_dataset
+### Prerequisites
 
-# Install dependencies
-pip install -r requirements.txt
+- Python 3.9+
+- Docker and Docker Compose
+- An OpenAI API key
+- A valid email address for PubMed API access
 
-# Copy and configure environment files
-cp config/api_keys.env.example config/api_keys.env
-cp config/database.env.example config/database.env
+### Quick Start (Recommended)
 
-# Edit config files with your API keys
-nano config/api_keys.env
-```
+The `run.sh` script provides a guided setup process that handles environment configuration, database setup, and pipeline execution.
 
-### 2. Database Setup
+1.  **Navigate to the project directory:**
+    ```bash
+    cd sports_science_dataset
+    ```
 
-```bash
-# Start PostgreSQL with pgvector
-docker-compose up -d postgres
+2.  **Make the script executable:**
+    ```bash
+    chmod +x run.sh
+    ```
 
-# Initialize database tables
-python src/main.py --setup-db
+3.  **Run the interactive setup script:**
+    ```bash
+    ./run.sh
+    ```
 
-# Test database connection
-python src/main.py --test-connection
-```
+    Follow the on-screen prompts. The script will help you:
+    - Create and configure your environment files (`.env`).
+    - Start the PostgreSQL database using Docker.
+    - Initialize the database schema.
+    - Run the full data collection pipeline.
 
-### 3. Run Collection Pipeline
+### Manual Setup
 
-```bash
-# Collect papers for all domains (recommended for first run)
-python src/main.py
+For developers who prefer a step-by-step approach:
 
-# Collect papers for specific domains
-python src/main.py --domains "load_progression,deload_timing"
+1.  **Install Dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-# Background execution with logging
-nohup python src/main.py > collection.log 2>&1 &
-```
+2.  **Configure Environment:**
+    Copy the example environment files:
+    ```bash
+    cp config/database.env.example .env
+    ```
+    Now, edit the `.env` file to add your API keys and set your configuration.
+    ```ini
+    # .env
 
-## Configuration
+    # Required
+    OPENAI_API_KEY="your_openai_api_key_here"
+    NCBI_EMAIL="your_email@example.com"
 
-### Required API Keys
+    # Optional
+    SEMANTIC_SCHOLAR_API_KEY="your_semantic_scholar_key"
 
-1. **OpenAI API Key**: For AI-powered paper assessment
-   - Get from: https://platform.openai.com/api-keys
-   - Set in: `config/api_keys.env` → `OPENAI_API_KEY`
+    # Collection Targets
+    TARGET_PAPERS_PER_DOMAIN=50
+    MINIMUM_QUALITY_SCORE=6
+    MINIMUM_RELEVANCE_SCORE=0.6
 
-2. **NCBI Email**: Required for PubMed API access
-   - Set in: `config/api_keys.env` → `NCBI_EMAIL`
+    # Performance
+    MAX_CONCURRENT_DOWNLOADS=5
+    ```
 
-3. **Semantic Scholar API Key** (Optional): Increases rate limits
-   - Get from: https://www.semanticscholar.org/product/api
-   - Set in: `config/api_keys.env` → `SEMANTIC_SCHOLAR_API_KEY`
+3.  **Start the Database:**
+    This command starts a PostgreSQL container with the `pgvector` extension enabled.
+    ```bash
+    docker compose up -d postgres
+    ```
+    The database files will be stored in `./data/postgres_data` as configured in the `docker compose.yml`.
 
-### Collection Parameters
+4.  **Initialize the Database Schema:**
+    This command creates the necessary tables and indexes.
+    ```bash
+    python3 src/main.py --setup-db
+    ```
 
-Edit `.env` file to customize:
+5.  **Test the Connection:**
+    Verify that the application can connect to the database.
+    ```bash
+    python3 src/main.py --test-connection
+    ```
 
-```bash
-# Target papers per domain (default: 50)
-TARGET_PAPERS_PER_DOMAIN=75
+6.  **Run the Collection Pipeline:**
+    This will start the process of fetching, processing, and storing papers.
+    ```bash
+    # Run for all domains
+    python3 src/main.py
 
-# Quality thresholds
-MINIMUM_QUALITY_SCORE=6
-MINIMUM_RELEVANCE_SCORE=0.6
+    # Or, for specific domains
+    python3 src/main.py --domains "load_progression,deload_timing"
+    ```
 
-# Concurrency settings
-MAX_CONCURRENT_DOWNLOADS=5
-```
-
-## Research Domains
-
-The system collects papers across four key sports science domains:
-
-### 1. Load Progression
-- Progressive overload strategies
-- Training load autoregulation
-- RPE-based programming
-
-### 2. Deload Timing
-- Fatigue monitoring protocols
-- Recovery strategies
-- Overreaching detection
-
-### 3. Exercise Selection
-- Biomechanical analysis
-- Muscle activation patterns
-- Movement optimization
-
-### 4. Periodization
-- Training program design
-- Block vs linear periodization
-- Competition preparation
-
-## Database Schema
-
-```sql
--- Main papers table
-papers (
-    id, title, authors[], journal, year, doi, pmid,
-    semantic_scholar_id, arxiv_id, abstract, full_text,
-    sections (JSON), domain, source, quality_score,
-    relevance_score, citation_count, pdf_path, pdf_url,
-    metadata (JSON), embedding (vector), created_at
-)
-
--- Collection tracking
-search_history (id, domain, query_text, source, results_count)
-collection_stats (id, domain, source, total_papers, successful_downloads)
-```
-
-## Pipeline Architecture
+## Project Structure
 
 ```
-1. Multi-source Collection
-   ├── PubMed (Entrez API)
-   ├── Semantic Scholar API
-   └── arXiv API
-
-2. Deduplication Engine
-   ├── DOI matching
-   ├── Title similarity (fuzzy)
-   └── Author+Title combination
-
-3. AI Quality Assessment
-   ├── Relevance scoring (0-1)
-   ├── Quality scoring (1-10)
-   └── Methodology classification
-
-4. PDF Processing
-   ├── Download and validation
-   ├── Text extraction (PyMuPDF)
-   └── Section identification
-
-5. Vector Embeddings
-   ├── Title+Abstract embedding
-   ├── Sentence-transformers
-   └── pgvector storage
-
-6. Database Storage
-   ├── Structured metadata
-   ├── Full-text search
-   └── Vector similarity search
+sports_science_dataset/
+├── docker compose.yml      # Docker configuration for PostgreSQL
+├── requirements.txt        # Python dependencies
+├── README.md               # This file
+├── run.sh                  # Interactive setup script
+├── src/                    # Source code
+│   ├── main.py             # Main orchestration script
+│   ├── collectors/         # Data collection modules
+│   ├── processors/         # Data processing modules
+│   └── database/           # Database interaction logic
+├── data/                   # Data storage
+│   ├── postgres_data/      # PostgreSQL data (bind mount)
+│   └── ...
+├── config/                 # Configuration files
+│   └── database.env.example # Example environment file
+└── sql/                    # SQL scripts
+    └── init.sql            # Database initialization script
 ```
 
-## Data Quality Controls
+## Database
 
-- **Year Range**: 2010-2024 for recent relevance
-- **Study Types**: Prioritizes RCTs, meta-analyses, systematic reviews
-- **Population**: Healthy adults, trained individuals, athletes
-- **Language**: English only
-- **AI Assessment**: Minimum 6/10 quality, 0.6/1.0 relevance
-- **Deduplication**: Multi-level duplicate detection
+The project uses a PostgreSQL database with the `pgvector` extension to store and query paper data and vector embeddings.
 
-## Performance & Monitoring
-
-### Rate Limiting
-- PubMed: 3 requests/second
-- Semantic Scholar: 100 requests/minute
-- arXiv: 10 requests/minute
-- OpenAI: 60 requests/minute
-
-### Expected Timeline
-- ~2-3 hours for complete collection (200 papers)
-- ~500MB storage for papers + PDFs
-- ~50% duplicate rate across sources
-
-### Monitoring
-```bash
-# View real-time progress
-tail -f data/logs/collection.log
-
-# Check database stats
-python -c "
-from src.database import get_session, Paper
-with get_session() as session:
-    print(f'Total papers: {session.query(Paper).count()}')
-"
-
-# Adminer database viewer
-open http://localhost:8080
-```
-
-## Extending the System
-
-### Adding New Sources
-
-1. Create collector in `src/collectors/new_source_collector.py`
-2. Inherit from `BaseCollector`
-3. Implement `search_papers()` and `get_paper_details()`
-4. Add to main pipeline in `src/main.py`
-
-### Adding New Domains
-
-1. Define search queries in `DOMAIN_QUERIES`
-2. Add domain criteria to `AIFilter.domain_criteria`
-3. Update database schema if needed
-
-### Custom Processing
-
-1. Extend `PDFProcessor` for specialized text extraction
-2. Modify `AIFilter` prompts for domain-specific assessment
-3. Add custom deduplication rules in `Deduplicator`
+-   **Database Viewer**: You can connect to the database using any standard PostgreSQL client or the provided Adminer service.
+    -   **URL**: `http://localhost:8080`
+    -   **Server**: `postgres`
+    -   **Username**: `admin`
+    -   **Password**: `sports_science_password` (or as set in your `.env`)
+    -   **Database**: `sports_science`
 
 ## Troubleshooting
 
-### Common Issues
+-   **Database Connection Failed**:
+    -   Ensure Docker is running.
+    -   Check the `postgres` container logs: `docker compose logs postgres`.
+    -   Verify the database credentials in your `.env` file.
 
-**Database Connection Failed**
-```bash
-# Check PostgreSQL is running
-docker-compose ps
-docker-compose logs postgres
+-   **API Rate Limiting**:
+    -   The application has built-in rate limit handling, but if you encounter persistent issues, you may need to check your API key usage or adjust the rate limit settings in the code.
 
-# Verify connection settings
-python src/main.py --test-connection
-```
-
-**API Rate Limiting**
-```bash
-# Check rate limit settings in config/api_keys.env
-# Increase delays between requests if needed
-```
-
-**PDF Download Failures**
-```bash
-# Check internet connectivity and PDF URLs
-# Verify download directory permissions
-ls -la data/raw_papers/
-```
-
-**Memory Issues**
-```bash
-# Reduce batch sizes in .env
-MAX_CONCURRENT_DOWNLOADS=3
-TARGET_PAPERS_PER_DOMAIN=25
-```
-
-### Log Analysis
-```bash
-# Error patterns
-grep "ERROR" data/logs/collection.log
-
-# Success rates
-grep "papers accepted" data/logs/collection.log
-
-# PDF processing stats
-grep "PDF processed" data/logs/collection.log
-```
-
-## Production Deployment
-
-### Docker Deployment
-```bash
-# Build production image
-docker build -t sports-science-dataset .
-
-# Run with docker-compose
-docker-compose up -d
-```
-
-### Cron Job Setup
-```bash
-# Daily collection (incremental)
-0 2 * * * cd /path/to/project && python src/main.py >> daily_collection.log 2>&1
-```
-
-### Monitoring & Alerts
-- Set up log monitoring (ELK stack)
-- Database size alerts
-- API quota monitoring
-- Failed collection notifications
-
-## Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/new-feature`)
-3. Commit changes (`git commit -am 'Add new feature'`)
-4. Push to branch (`git push origin feature/new-feature`)
-5. Create Pull Request
-
-## License
-
-MIT License - see LICENSE file for details.
-
-## Support
-
-For issues and questions:
-- Create GitHub issue for bugs/features
-- Check logs in `data/logs/` for troubleshooting
-- Validate configuration with test commands
+-   **PDF Download Failures**:
+    -   Check your internet connection.
+    -   Some papers may be behind paywalls, leading to download failures. The pipeline is designed to handle these gracefully.

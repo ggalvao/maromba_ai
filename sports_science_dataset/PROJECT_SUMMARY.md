@@ -7,7 +7,7 @@ This document provides a comprehensive summary of the Sports Science Literature 
 ## ✅ Core Features Implemented
 
 ### 🔍 Multi-Source Collection
-- **PubMed**: Bio-python Entrez API with robust error handling
+- **PubMed**: Bio-python3 Entrez API with robust error handling
 - **Semantic Scholar**: Free API with optional key for higher limits  
 - **arXiv**: XML API for recent preprints and research
 
@@ -93,22 +93,22 @@ cp config/api_keys.env config/api_keys.env
 # - SEMANTIC_SCHOLAR_API_KEY (optional)
 
 # 3. Start database
-docker-compose up -d postgres
+docker compose up -d postgres
 
 # 4. Setup database tables
-python src/main.py --setup-db
+python3 src/main.py --setup-db
 
 # 5. Test connection
-python src/main.py --test-connection
+python3 src/main.py --test-connection
 
 # 6. Run collection pipeline
-python src/main.py
+python3 src/main.py
 ```
 
 ### Method 3: Specific Domain Collection
 ```bash
 # Collect papers for specific domains only
-python src/main.py --domains "load_progression,deload_timing"
+python3 src/main.py --domains "load_progression,deload_timing"
 
 # Available domains:
 # - load_progression
@@ -145,7 +145,7 @@ python src/main.py --domains "load_progression,deload_timing"
 
 ```
 sports_science_dataset/
-├── docker-compose.yml              # PostgreSQL + pgvector setup
+├── docker compose.yml              # PostgreSQL + pgvector setup
 ├── requirements.txt                # Python dependencies
 ├── README.md                       # Detailed documentation
 ├── PROJECT_SUMMARY.md             # This file
@@ -211,7 +211,7 @@ papers (
     citation_count INTEGER,
     pdf_path VARCHAR(500),
     pdf_url TEXT,
-    metadata JSONB,              -- AI assessments, PDF metadata
+    paper_metadata JSONB,        -- AI assessments, PDF metadata
     embedding VECTOR(768),       -- Sentence transformer embeddings
     created_at TIMESTAMP,
     updated_at TIMESTAMP
@@ -278,7 +278,7 @@ OPENAI_RATE_LIMIT=60         # per minute
 ### Automated Testing
 ```bash
 # Run comprehensive test suite
-python test_pipeline.py
+python3 test_pipeline.py
 
 # Tests include:
 # - Environment setup validation
@@ -293,7 +293,7 @@ python test_pipeline.py
 ### Manual Validation
 ```bash
 # Check database status
-python src/main.py --test-connection
+python3 src/main.py --test-connection
 
 # View collection statistics
 # Open http://localhost:8080 (Adminer)
@@ -372,11 +372,11 @@ tail -f data/logs/collection_*.log
 **Database Connection Failed**
 ```bash
 # Check Docker is running
-docker-compose ps
-docker-compose logs postgres
+docker compose ps
+docker compose logs postgres
 
 # Restart if needed
-docker-compose down && docker-compose up -d postgres
+docker compose down && docker compose up -d postgres
 ```
 
 **API Rate Limiting**
@@ -400,7 +400,7 @@ ls -la data/raw_papers/
 MAX_CONCURRENT_DOWNLOADS=3
 
 # Process domains separately
-python src/main.py --domains "load_progression"
+python3 src/main.py --domains "load_progression"
 ```
 
 ### Log Analysis
@@ -430,7 +430,7 @@ This system provides a solid foundation for your 8-week capstone project and can
 
 For issues during your capstone:
 1. Check logs in `data/logs/` directory
-2. Run test suite: `python test_pipeline.py`
+2. Run test suite: `python3 test_pipeline.py`
 3. Validate configuration with interactive script: `./run.sh`
 4. Review this document and README.md for detailed guidance
 
